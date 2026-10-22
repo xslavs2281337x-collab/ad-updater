@@ -43,8 +43,16 @@ else:
 conn.unbind()
 
 # ===========CSV=========== 
-files = input("name file:")
-with open(files, newline='', encoding="utf-8-sig") as file:
-    reader = csv.DictReader(file, delimiter=";")
-    for user in reader:
-        print(user)
+#files = input("name file:")
+#with open(files, newline='', encoding="utf-8-sig") as file:
+#    reader = csv.DictReader(file, delimiter=";")
+#    for user in reader:
+#        print(user)
+
+conn.search(
+    search_base="DC=loesk,DC=internal",
+    search_filter="(sAMAccountName=Demidov)",
+    attributes=["title"]
+)
+
+print(conn.entries)
