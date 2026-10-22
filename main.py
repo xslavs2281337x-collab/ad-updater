@@ -7,6 +7,7 @@ import ssl
 
 load_dotenv()
 
+
 # ===========CONNECTION=========== 
 server = Server(
     os.getenv("AD_SERVER"),
@@ -42,7 +43,8 @@ else:
 conn.unbind()
 
 # ===========CSV=========== 
-with open('users.csv', newline='', encoding="utf-8-sig") as file:
+files = input("name file:")
+with open(files, newline='', encoding="utf-8-sig") as file:
     reader = csv.DictReader(file, delimiter=";")
     for user in reader:
         print(user)
