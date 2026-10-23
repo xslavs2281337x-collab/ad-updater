@@ -83,6 +83,8 @@ for key, vol in changes.items():
 
 
 conn.modify(user.entry_dn, ldap_changes)
+print(conn.result)
+print(conn.read_only)
 print(ldap_changes)
 
 conn.unbind
