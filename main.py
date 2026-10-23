@@ -82,9 +82,9 @@ for attr in ["title","department","displayName","company"]:
 
 for key, vol in changes.items():
     if key == "department":
-        vol1 = vol[:64]
-
-    ldap_changes[key] = [(MODIFY_REPLACE, [vol1])]
+        vol = vol[:64]
+    ldap_changes[key] = [(MODIFY_REPLACE, [vol])]
+ 
 
 
 conn.modify(user.entry_dn, ldap_changes)
