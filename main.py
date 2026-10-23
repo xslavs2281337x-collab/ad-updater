@@ -49,11 +49,12 @@ with open("test.csv", newline='', encoding="utf-8-sig") as file:
 
     for user in reader:
         new = user
-
+        names_csv = user["ACCOUNT"]
+        print(names_csv)
 # ===========AD=============
 conn.search(
     search_base="DC=loesk,DC=internal",
-    search_filter="(sAMAccountName=demidov-va)",
+    search_filter=f"(sAMAccountName={names_csv})",
     attributes=[
         "title",
         "department",
