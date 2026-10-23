@@ -1,5 +1,5 @@
 import csv
-from ldap3 import Server, Connection, SASL, KERBEROS, Tls, ALL_ATTRIBUTES
+from ldap3 import MODIFY_REPLACE, Server, Connection, SASL, KERBEROS, Tls, ALL_ATTRIBUTES
 from dotenv import load_dotenv
 import os
 import ssl
@@ -7,6 +7,7 @@ import ssl
 
 load_dotenv()
 changes = {}
+ldap_changes = {}
 
 # ===========CONNECTION=========== 
 server = Server(
@@ -32,7 +33,7 @@ conn = Connection(
     server,
     authentication=SASL,
     sasl_mechanism=KERBEROS,
-    read_only=True
+    read_only=False
 )
 
 if conn.bind():
@@ -57,7 +58,8 @@ conn.search(
         "department",
         "displayName",
         "company",
-        "manager"
+        "manager",
+        "distinguishedName"
 
     ]
 )
@@ -76,6 +78,11 @@ for attr in ["title","department","displayName","company","manager"]:
     if old != new[attr] and new[attr]:
         changes[attr] = new[attr]
 
-print(changes)
+for key, vol in changes.items():
+    ldap_changes[key] = [(MODIFY_REPLACE, [vol])]
+
+
+conn.modify(user.entry_dn, ldap_changes)
+print(ldap_changes)
 
 conn.unbind
