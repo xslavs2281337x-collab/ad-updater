@@ -6,7 +6,7 @@ import ssl
 
 
 load_dotenv()
-
+changes = {}
 
 # ===========CONNECTION=========== 
 server = Server(
@@ -74,7 +74,8 @@ for attr in ["title","department","displayName","company","manager"]:
     old = getattr(user, attr).value 
     
     if old != new[attr]:
-        print("aaaa")
+        changes[attr] = new[attr]
 
+print(changes)
 
 conn.unbind
