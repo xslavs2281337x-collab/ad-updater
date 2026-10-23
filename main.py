@@ -1,5 +1,5 @@
 import csv
-from ldap3 import Server, Connection, SASL, KERBEROS, Tls
+from ldap3 import Server, Connection, SASL, KERBEROS, Tls, ALL_ATTRIBUTES
 from dotenv import load_dotenv
 import os
 import ssl
@@ -40,19 +40,41 @@ if conn.bind():
     print("LDAP:", conn.extend.standard.who_am_i())
 else:
     print("failure:", conn.result)
-conn.unbind()
 
 # ===========CSV=========== 
 #files = input("name file:")
-#with open(files, newline='', encoding="utf-8-sig") as file:
-#    reader = csv.DictReader(file, delimiter=";")
-#    for user in reader:
-#        print(user)
+with open("test.csv", newline='', encoding="utf-8-sig") as file:
+    reader = csv.DictReader(file, delimiter=";")
 
+    for user in reader:
+        new = user
+# ===========AD=============
 conn.search(
     search_base="DC=loesk,DC=internal",
-    search_filter="(sAMAccountName=Demidov)",
-    attributes=["title"]
+    search_filter="(sAMAccountName=demidov-va)",
+    attributes=[
+        "title",
+        "department",
+        "displayName",
+        "company",
+        "manager"
+
+    ]
 )
 
-print(conn.entries)
+
+user = conn.entries[0]
+#print(user.displayName.value)
+#print(user.title.value)
+#print(user.department.value)
+#print(user.company.value)
+#print(user.manager.value)
+
+for attr in ["title","department","displayName","company","manager"]:
+    old = getattr(user, attr).value 
+    
+    if old != new[attr]:
+        print("aaaa")
+
+
+conn.unbind
