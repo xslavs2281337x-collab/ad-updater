@@ -49,6 +49,7 @@ with open("test.csv", newline='', encoding="utf-8-sig") as file:
 
     for user in reader:
         new = user
+
 # ===========AD=============
 conn.search(
     search_base="DC=loesk,DC=internal",
@@ -72,19 +73,23 @@ user = conn.entries[0]
 #print(user.company.value)
 #print(user.manager.value)
 
-for attr in ["title","department","displayName","company","manager"]:
+for attr in ["title","department","displayName","company"]:
     old = getattr(user, attr).value 
     
     if old != new[attr] and new[attr]:
         changes[attr] = new[attr]
 
+
 for key, vol in changes.items():
-    ldap_changes[key] = [(MODIFY_REPLACE, [vol])]
+    if key == "department":
+        vol1 = vol[:64]
+
+    ldap_changes[key] = [(MODIFY_REPLACE, [vol1])]
 
 
 conn.modify(user.entry_dn, ldap_changes)
 print(conn.result)
 print(conn.read_only)
 print(ldap_changes)
-
+print(user)
 conn.unbind
