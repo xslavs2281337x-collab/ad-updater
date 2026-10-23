@@ -73,7 +73,7 @@ user = conn.entries[0]
 for attr in ["title","department","displayName","company","manager"]:
     old = getattr(user, attr).value 
     
-    if old != new[attr]:
+    if old != new[attr] and new[attr]:
         changes[attr] = new[attr]
 
 print(changes)
