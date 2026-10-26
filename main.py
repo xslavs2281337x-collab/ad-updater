@@ -48,8 +48,9 @@ with open("test.csv", newline='', encoding="utf-8-sig") as file:
     reader = csv.DictReader(file, delimiter=";")
 
     for user in reader:
-        new = user
+        newcsv = user
         names_csv = user["ACCOUNT"]
+        manager_csv = user["manager"]
         print(names_csv)
 # ===========AD=============
 conn.search(
@@ -65,32 +66,40 @@ conn.search(
 
     ]
 )
-
-
 user = conn.entries[0]
-#print(user.displayName.value)
-#print(user.title.value)
-#print(user.department.value)
-#print(user.company.value)
-#print(user.manager.value)
+
+conn.search(
+    search_base="DC=loesk,DC=internal",
+    search_filter=f"(DisplayName={manager_csv})",
+    attributes=[
+        "displayName"
+    ]
+)
+manager = conn.entries[0]
+
+
 
 for attr in ["title","department","displayName","company"]:
     old = getattr(user, attr).value 
-    
-    if old != new[attr] and new[attr]:
-        changes[attr] = new[attr]
+    if old != newcsv[attr] and newcsv[attr]:
+        changes[attr] = newcsv[attr]
+
+
+# ======search difference============
+if user.manager.value != manager.entry_dn:
+    changes["manager"] = manager.entry_dn
 
 
 for key, vol in changes.items():
     if key == "department":
         vol = vol[:64]
     ldap_changes[key] = [(MODIFY_REPLACE, [vol])]
- 
 
-
+ #===========change===========
+print(manager.entry_dn)
+print(user.manager.value)
 conn.modify(user.entry_dn, ldap_changes)
-print(conn.result)
-print(conn.read_only)
-print(ldap_changes)
-print(user)
+#print(conn.result)
+#print(conn.read_only)
+#print(ldap_changes)
 conn.unbind
