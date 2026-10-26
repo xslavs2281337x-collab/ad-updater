@@ -33,7 +33,7 @@ conn = Connection(
     server,
     authentication=SASL,
     sasl_mechanism=KERBEROS,
-    read_only=False
+    read_only=True
 )
 
 if conn.bind():
@@ -90,16 +90,20 @@ if user.manager.value != manager.entry_dn:
     changes["manager"] = manager.entry_dn
 
 
+
 for key, vol in changes.items():
     if key == "department":
         vol = vol[:64]
     ldap_changes[key] = [(MODIFY_REPLACE, [vol])]
-
  #===========change===========
-print(manager.entry_dn)
-print(user.manager.value)
-conn.modify(user.entry_dn, ldap_changes)
-#print(conn.result)
-#print(conn.read_only)
-#print(ldap_changes)
+try:
+    success = conn.modify(user.entry_dn, ldap_changes)
+    if success:
+        print("The changes have been applied")
+    else:
+        print(conn.result)
+except Exception as e:
+    print(f"exception {e}")
+
+    
 conn.unbind
