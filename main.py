@@ -48,7 +48,7 @@ with open("test.csv", newline='', encoding="utf-8-sig") as file:
     reader = csv.DictReader(file, delimiter=";")
 
     for user in reader:
-        new = user
+        newcsv = user
         names_csv = user["ACCOUNT"]
         print(names_csv)
 # ===========AD=============
@@ -76,9 +76,8 @@ user = conn.entries[0]
 
 for attr in ["title","department","displayName","company"]:
     old = getattr(user, attr).value 
-    
-    if old != new[attr] and new[attr]:
-        changes[attr] = new[attr]
+    if old != newcsv[attr] and newcsv[attr]:
+        changes[attr] = newcsv[attr]
 
 
 for key, vol in changes.items():
@@ -87,10 +86,8 @@ for key, vol in changes.items():
     ldap_changes[key] = [(MODIFY_REPLACE, [vol])]
  
 
-
 conn.modify(user.entry_dn, ldap_changes)
-print(conn.result)
-print(conn.read_only)
-print(ldap_changes)
-print(user)
+#print(conn.result)
+#print(conn.read_only)
+#print(ldap_changes)
 conn.unbind
