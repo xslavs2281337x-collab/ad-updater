@@ -3,6 +3,16 @@ from ldap3 import MODIFY_REPLACE, Server, Connection, SASL, KERBEROS, Tls, ALL_A
 from dotenv import load_dotenv
 import os
 import ssl
+import logging
+from pathlib import Path
+import sys
+
+logging.basicConfig(
+    filename="updater.log",
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    encoding="utf-8"
+)
 
 
 load_dotenv()
@@ -33,7 +43,7 @@ conn = Connection(
     server,
     authentication=SASL,
     sasl_mechanism=KERBEROS,
-    read_only=True
+    read_only=False
 )
 
 if conn.bind():
@@ -43,15 +53,26 @@ else:
     print("failure:", conn.result)
 
 # ===========CSV=========== 
-#files = input("name file:")
-with open("test.csv", newline='', encoding="utf-8-sig") as file:
-    reader = csv.DictReader(file, delimiter=";")
+files = input("name file(default users.csv):") or "users.csv"
 
-    for user in reader:
-        newcsv = user
-        names_csv = user["ACCOUNT"]
-        manager_csv = user["manager"]
-        print(names_csv)
+try:
+    with open(files, newline='', encoding="utf-8-sig") as file:
+        reader = csv.DictReader(file, delimiter=";")
+        for user in reader:
+            newcsv = user
+            names_csv = user["ACCOUNT"]
+            manager_csv = user["manager"]
+            print(names_csv)
+
+except FileNotFoundError as b:
+    print("The CSV file was not found")
+    logging.error(b)
+    sys.exit(1)
+
+except PermissionError as e:
+    print("access denied")
+    logging.error(e)
+    sys.exit(1)
 # ===========AD=============
 conn.search(
     search_base="DC=loesk,DC=internal",
@@ -100,10 +121,15 @@ try:
     success = conn.modify(user.entry_dn, ldap_changes)
     if success:
         print("The changes have been applied")
+        logging.info("DONE")
+        
+
     else:
         print(conn.result)
+        logging.error(conn.result)
 except Exception as e:
     print(f"exception {e}")
+    logging.error(e)
 
     
 conn.unbind
