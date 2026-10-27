@@ -18,8 +18,8 @@ Python-скрипт для пакетного обновления атрибу�
 CSV-файл должен иметь разделитель **`;`** и заголовки с **точным совпадением регистра**:
 
 ```csv
-ACCOUNT;displayName;company;title;department;manager
-ivanov;Иванов Иван Иванович;Пример организации;Инженер;ИТ;Петров Пётр Петрович
+ACCOUNT;displayName;company;title;department;manager;employeeID
+ivanov;Иванов Иван Иванович;Пример организации;Инженер;ИТ;Петров Пётр Петрович;ЗП-0000000
 ```
 
 - `ACCOUNT` — логин сотрудника в AD.
