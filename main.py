@@ -40,12 +40,14 @@ if conn.bind():
     print("LDAP:", conn.extend.standard.who_am_i())
 else:
     print("failure:", conn.result)
+    logging.error("failure:", conn.result)
     sys.exit(1)
 
 # ===========CSV=========== 
 files = input("name file(default users.csv):") or "users.csv"
 
 try:
+    print("start changing")
     with open(files, newline='', encoding="utf-8-sig") as file:
         reader = csv.DictReader(file, delimiter=";")
         for user in reader:
@@ -54,7 +56,6 @@ try:
             newcsv = user
             names_csv = user["ACCOUNT"]
             manager_csv = user["manager"]
-            print(names_csv)
             # ===========AD=============
             conn.search(
                 search_base="DC=loesk,DC=internal",
@@ -71,7 +72,7 @@ try:
                 )
             
             if len(conn.entries) != 1:
-                logging.warning(f"User {names_csv}: seacrh {len(conn.entries)}")
+                logging.error(f"User {names_csv}: seacrh {len(conn.entries)}")
                 continue
             user = conn.entries[0]
             
@@ -84,14 +85,14 @@ try:
                 )
 
             if len(conn.entries) != 1:
-                logging.warning("Manager don't one 0-0")
+                logging.error("Manager don't one 0-0")
                 continue
             manager = conn.entries[0]
             
             for attr in ["title","department","displayName","company"]:
                 old = getattr(user, attr).value 
-                if old != newcsv[attr] and newcsv[attr]:
-                    changes[attr] = newcsv[attr]
+                if old != newcsv[attr][:64] and newcsv[attr][:64]:
+                    changes[attr] = newcsv[attr][:64]
             
             # ======search difference============
             if user.manager.value != manager.entry_dn:
@@ -106,20 +107,16 @@ try:
                 try:
                     success = conn.modify(user.entry_dn, ldap_changes)
                     if success:
-                        print("The changes have been applied")
-                        logging.info(f"{names_csv} DONE. {changes.values()}")
+                        print(f"{names_csv} The changes have been applied")
+                        logging.info(f"{names_csv} DONE. changes {changes.values()}")
                     else:
                         print(conn.result)
                         logging.error(conn.result)
                 except Exception as e:
                     print(f"exception {e}")
                     logging.error(e)
-                    conn.unbind
             else:
-                logging.info(f"{names_csv}: don't changes")
-
-                
-            
+                logging.info(f"{names_csv}: don't change")
 
 except FileNotFoundError as b:
     print("The CSV file was not found")
@@ -130,3 +127,6 @@ except PermissionError as e:
     print("access denied")
     logging.error(e)
     sys.exit(1)
+finally:
+    conn.unbind()
+    print("LDAP was closed")
