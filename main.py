@@ -70,16 +70,15 @@ try:
                     "displayName",
                     "company",
                     "manager",
-                    "distinguishedName"
+                    "distinguishedName",
+                    "employeeID"
 
                     ]
                 )
-            
             if len(conn.entries) != 1:
                 logging.error(f"User {names_csv}: seacrh {len(conn.entries)}")
                 continue
             user = conn.entries[0]
-            
             conn.search(
                 search_base="DC=loesk,DC=internal",
                 search_filter=f"(DisplayName={manager_csv})",
@@ -87,13 +86,12 @@ try:
                     "displayName"
                      ]
                 )
-
             if len(conn.entries) != 1:
                 logging.error("Manager don't one 0-0")
                 continue
             manager = conn.entries[0]
             
-            for attr in ["title","department","displayName","company"]:
+            for attr in ["title","department","displayName","company","employeeid"]:
                 old = getattr(user, attr).value 
                 if old != newcsv[attr][:64] and newcsv[attr][:64]:
                     changes[attr] = newcsv[attr][:64]
@@ -132,5 +130,6 @@ except PermissionError as e:
     logging.error(e)
     sys.exit(1)
 finally:
+    
     conn.unbind()
     print("LDAP was closed")
