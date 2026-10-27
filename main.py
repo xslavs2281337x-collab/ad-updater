@@ -54,6 +54,10 @@ try:
             changes = {}
             ldap_changes = {}
             newcsv = user
+            if not (user["ACCOUNT"] or "").strip() :
+                logging.error(f"no username {user["displayName"]}")
+                print(f"no username {user["displayName"]}")
+                continue
             names_csv = user["ACCOUNT"]
             manager_csv = user["manager"]
             # ===========AD=============
