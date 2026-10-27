@@ -51,8 +51,7 @@ AD_SERVER=dc.example.internal
 Откройте PowerShell в директории проекта.
 
 **1. Создайте виртуальное окружение, если его ещё нет:**
-
-```powershell
+```powershell 
 py -m venv .venv
 ```
 
